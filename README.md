@@ -1,2 +1,31 @@
-# CyberOS
-Web-Based OS
+# 🌐 CyberOS
+
+**CyberOS** is a sleek and modern web-based operating system simulation that brings the power of a desktop experience directly into your browser. Designed for speed, simplicity, and futuristic aesthetics, CyberOS is ideal for demos, personal productivity tools, or just for fun.
+
+---
+
+## 🚀 Features
+
+- 🖥️ Desktop-like interface
+- 🗂️ Window management (open, move, minimize, close)
+- 📁 Built-in apps (Notes, Terminal, File Explorer, etc.)
+- 🎨 Customizable UI theme
+- ⚡ Fast and lightweight — runs entirely in your browser
+
+---
+
+## 🛠️ Tech Stack
+
+- HTML5
+- CSS3 (or Tailwind, if used)
+- JavaScript (Vanilla or Framework like React/Vue)
+- Optional: LocalStorage or IndexedDB for saving state
+
+---
+
+## 🔧 How to Run
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/your-username/CyberOS.git
+   cd CyberOS
