@@ -17,7 +17,7 @@
 ## 🛠️ Tech Stack
 
 - HTML5
-- CSS3 (or Tailwind, if used)
+- Tailwind
 - JavaScript (Vanilla or Framework like React/Vue)
 - Optional: LocalStorage or IndexedDB for saving state
 
