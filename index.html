@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberOS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(-45deg, #0f172a, #155e75, #0f172a, #020617);
+      background-size: 400% 400%;
+      animation: animatedBG 15s ease infinite;
+    }
+
+    @keyframes animatedBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .window {
+      position: absolute;
+      background-color: white;
+      border-radius: 0.5rem;
+      border: 2px solid #06b6d4;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+      transform: scale(0.95);
+      opacity: 0;
+    }
+
+    .titlebar {
+      background-color: #155e75;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      cursor: move;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dock-button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #22d3ee;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: 2px solid #06b6d4;
+      transition: all 0.3s;
+    }
+
+    .dock-button:hover {
+      transform: scale(1.1);
+      background-color: #155e75;
+    }
+
+    .app-window {
+      width: 320px;
+      height: 220px;
+    }
+  </style>
+</head>
+<body class="h-screen overflow-hidden font-mono relative select-none text-cyan-400">
+
+  <!-- About Me Button -->
+<a href="https://srhurdirsati.github.io/portfolio" target="_blank"
+   class="absolute top-4 right-4 text-cyan-300 border border-cyan-400 px-3 py-1 rounded hover:bg-cyan-800 hover:text-white transition-all z-50 bg-black/70">
+  About Me
+</a>
+
+
+  <!-- Boot Screen -->
+  <div id="bootScreen" class="fixed inset-0 bg-black text-cyan-400 flex items-center justify-center text-2xl z-50">
+    <div class="text-center">
+      <div class="text-4xl mb-4 animate-pulse">🔧 CyberOS Booting...</div>
+      <div class="text-sm">Initializing Virtual-Server...</div>
+    </div>
+  </div>
+
+  <!-- App Dock -->
+  <div class="absolute top-1/2 -translate-y-1/2 left-2 flex flex-col space-y-4 z-20 hidden" id="appDock">
+    <button class="dock-button" onclick="launchApp('terminal')">💻<div class="text-xs mt-1">Terminal</div></button>
+    <button class="dock-button" onclick="launchApp('socials')">🌐<div class="text-xs mt-1">Socials</div></button>
+    <button class="dock-button" onclick="launchApp('notepad')">📝<div class="text-xs mt-1">Notepad</div></button>
+    <button class="dock-button" onclick="launchApp('settings')">⚙️<div class="text-xs mt-1">Settings</div></button>
+    <button class="dock-button" onclick="launchApp('motivator')">🚀<div class="text-xs mt-1">Motivate</div></button>
+  </div>
+
+  <!-- Taskbar -->
+  <div class="absolute bottom-0 w-full h-10 bg-black/90 flex items-center justify-between px-4 text-cyan-400 text-sm z-20 hidden" id="taskbar">
+    <button onclick="toggleMenu()" class="hover:scale-110 hover:text-cyan-300 transition-transform flex items-center space-x-2">
+      <span class="text-xl">🧬</span>
+      <span>Cyber Start</span>
+    </button>
+    <div id="clock">--:--</div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="startMenu" class="absolute bottom-12 left-4 w-48 bg-black border border-cyan-500 rounded shadow-md text-cyan-400 hidden z-30">
+    <div class="p-2 font-bold border-b border-cyan-500">CyberOS</div>
+    <button onclick="launchApp('terminal')" class="w-full text-left px-4 py-2 hover:bg-cyan-800">💻 Terminal</button>
+    <button onclick="launchApp('socials')" class="w-full text-left px-4 py-2 hover:bg-cyan-800">🌐 Socials</button>
+    <button onclick="launchApp('notepad')" class="w-full text-left px-4 py-2 hover:bg-cyan-800">📝 Notepad</button>
+    <button onclick="launchApp('settings')" class="w-full text-left px-4 py-2 hover:bg-cyan-800">⚙️ Settings</button>
+    <button onclick="launchApp('motivator')" class="w-full text-left px-4 py-2 hover:bg-cyan-800">🚀 Motivate</button>
+  </div>
+
+  <!-- Desktop -->
+  <div id="desktop" class="absolute inset-0 z-10"></div>
+
+  <script>
+    let zIndex = 10;
+    const motivations = [
+      "Believe in yourself. You are braver than you think.",
+      "Every day is a fresh start. Make it count.",
+      "The only limit is your mind.",
+      "Success is not final, failure is not fatal.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Dream big. Work hard. Stay focused.",
+      "Doubt kills more dreams than failure ever will.",
+      "You didn’t come this far to only come this far."
+    ];
+
+    // Boot sequence without login
+    setTimeout(() => {
+      document.getElementById("bootScreen").classList.add("hidden");
+      document.getElementById("appDock").classList.remove("hidden");
+      document.getElementById("taskbar").classList.remove("hidden");
+    }, 3000);
+
+    function toggleMenu() {
+      document.getElementById("startMenu").classList.toggle("hidden");
+    }
+
+    function makeDraggable(el) {
+      let isMouseDown = false, offset = [0, 0];
+      const title = el.querySelector(".titlebar");
+      title.onmousedown = function(e) {
+        isMouseDown = true;
+        offset = [e.clientX - el.offsetLeft, e.clientY - el.offsetTop];
+        el.style.zIndex = ++zIndex;
+      };
+      document.onmouseup = () => isMouseDown = false;
+      document.onmousemove = function(e) {
+        if (!isMouseDown) return;
+        el.style.left = `${e.clientX - offset[0]}px`;
+        el.style.top = `${e.clientY - offset[1]}px`;
+      };
+    }
+
+    function launchApp(app) {
+      const appId = "app-" + app + "-" + Date.now();
+      const appEl = document.createElement("div");
+      appEl.className = "window app-window";
+      appEl.id = appId;
+      appEl.style.top = `${Math.random() * 400 + 50}px`;
+      appEl.style.left = `${Math.random() * 600 + 50}px`;
+      appEl.style.zIndex = ++zIndex;
+
+      let content = "";
+      if (app === "terminal") {
+        content = `<div class="titlebar">Terminal <button onclick="closeApp('${appId}')">✖</button></div><div class="p-3 font-mono text-xs bg-black text-green-400 h-[170px] overflow-auto">[CyberOS v1.0]<br>Kernel: JS/Linux 5.1<br>RAM: 8192MB Virtual<br>GPU: Neural Render V2<br>Devices: /dev/mind /dev/vision /dev/ai</div>`;
+      } else if (app === "socials") {
+        content = `<div class="titlebar">Socials <button onclick="closeApp('${appId}')">✖</button></div><div class="p-3 text-cyan-800"><p class="mb-2 text-xs text-cyan-600">Connect with the hacker world:</p><button onclick="window.open('https://instagram.com/itz._.og._._.rudra')" class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded m-1">Instagram</button><button onclick="window.open('https://github.com/Srhurdirsati')" class="bg-gray-900 hover:bg-gray-700 text-white px-3 py-1 rounded m-1">GitHub</button><button onclick="window.open('https://hackclub.slack.com/team/U0856V82YKB')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded m-1">Slack</button></div>`;
+      } else if (app === "notepad") {
+        content = `<div class="titlebar">Notepad <button onclick="closeApp('${appId}')">✖</button></div><textarea class="w-full h-[170px] p-2 text-xs resize-none text-cyan-900 bg-gray-100 outline-none"></textarea>`;
+      } else if (app === "settings") {
+        content = `<div class="titlebar">Settings <button onclick="closeApp('${appId}')">✖</button></div><div class="p-3 text-cyan-900"><label class="flex items-center space-x-2"><span>🌓 Dark Mode</span><input type="checkbox" onchange="document.body.classList.toggle('invert')" /></label></div>`;
+      } else if (app === "motivator") {
+        content = `<div class="titlebar">Motivator <button onclick="closeApp('${appId}')">✖</button></div><div class="h-[170px] flex flex-col items-center justify-center text-center px-3 text-black"><div id="motivateText" class="text-sm mb-4 font-bold">Click below for a motivational quote</div><button onclick="randomMotivate('${appId}')" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-800">🚀 Inspire Me</button></div>`;
+      }
+
+      appEl.innerHTML = content;
+      document.getElementById("desktop").appendChild(appEl);
+      makeDraggable(appEl);
+      setTimeout(() => {
+        appEl.style.transform = "scale(1)";
+        appEl.style.opacity = "1";
+      }, 10);
+    }
+
+    function randomMotivate(appId) {
+      const text = motivations[Math.floor(Math.random() * motivations.length)];
+      const el = document.querySelector(`#${appId} #motivateText`);
+      el.innerHTML = text;
+    }
+
+    function closeApp(id) {
+      const el = document.getElementById(id);
+      el.style.transform = "scale(0.95)";
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 300);
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("clock").textContent = now.toLocaleTimeString();
+    }, 1000);
+  </script>
+</body>
+</html>
